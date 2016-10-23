@@ -1,0 +1,232 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+  body {
+                height: 350px;
+                width: 350px;
+            }
+            
+            .center {
+                text-align: center;
+            }
+            
+            #nowTime {
+                font-family: Arial;
+                font-size: 270%;
+                color: rgb(68, 144, 226);
+            }
+            
+            #nowDay {
+                font-family: Arial;
+                font-size: 150%;
+                color: rgb(121, 140, 186);
+            }
+            
+            
+ #calendar {
+                width: 100%;
+                font: monospace;
+                line-height: 1.2em;
+                font-size: 15px;
+                text-align: center;
+            }
+            
+            #calendar thead tr:last-child {
+                color: rgb(85, 85, 85);
+            }
+            #calendar thead tr:nth-child(1) td:nth-child(2) {
+                color: rgb(50, 50, 50);
+            }
+            #calendar tbody td, thead th {
+                color: rgb(44, 86, 122);
+                border-bottom: 1px solid black; /* Bottom line */
+            }
+            #calendar tbody td:nth-child(n+6), #calendar .holiday {
+                color: rgb(231, 140, 92);
+            }
+            
+            #calendar tbody td {
+                width: 20px;
+                height: 20px;
+            }
+            
+
+            #calendar tbody td.today:before {
+                content: attr(data-char);
+                display: block;
+                background: rgb(23, 173, 240);
+                width: 20px;
+                height: 20px;
+                color: white;
+                border-radius: 50%;
+                margin: 0 auto;
+            }
+            #calendar tbody td.other {
+                color: gray;
+            }
+		</style>
+	</head>
+	<body onload="all_func()">
+		<script>
+			function all_func(){ //calling all functions in onload
+				var newdata = new Date();
+				calendar('calendar', newdata);
+				time_now();
+				date_now();		
+				setTimeout("all_func",1000);	
+			}
+			
+			
+			
+			function time_now(){
+				newdata = new Date();
+				var hours = newdata.getHours();
+				var minutes = newdata.getMinutes();
+				if(hours < 10){
+					hours = "0" + hours;			
+					}
+				if(minutes < 10){
+				minutes = "0" + minutes;
+					}
+				var wholetime = hours + ":" +minutes;
+				document.getElementById('nowTime').innerHTML = wholetime;
+				
+				}	
+				
+				
+				
+				
+			function date_now(){
+				newdata = new Date();
+				var dayWeek = ['Sunday','Monday','Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+				var months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+				var wholedate = dayWeek[newdata.getDay()] + ", " + newdata.getDate() + " " + months[newdata.getMonth()] + ", " + newdata.getFullYear();
+				document.getElementById('nowDay').innerHTML = wholedate;
+				
+			}
+			
+			
+			
+			
+			var hol = [
+				{"day": 1, "months": 0,},
+				{"day": 7, "months": 0,},
+				{"day": 23, "months": 1,},
+				{"day": 8, "months": 2,},
+				{"day": 1, "months": 4,},
+				{"day": 2, "months": 4,},
+				{"day": 9, "months": 4,},
+				{"day": 12, "months": 5,},
+				{"day": 4, "months": 10,},];//array of holidays
+				
+				
+				
+				
+			function thisHol(newdata){ 
+			//checking if this day is holidays
+			
+				for (i in hol){
+					var holi = hol[i];
+					if(newdata.getDate() == holi.day && holi.months == newdata.getMonth()) {
+						return true;
+					}
+					
+				}
+				return false;
+			} 
+			
+			
+			
+			
+			function calendar(id, newdata){
+				
+				var Year = newdata.getFullYear(); //determining current year
+				var months = newdata.getMonth(); //determining current month
+				var day_last = new Date(Year, months + 1, 0).getDate(); //determining last day of current month
+				var last_day = new Date(Year, months, day_last); //this is last day
+				var last_day_weekd = new Date(last_day.getFullYear(), last_day.getMonth(), day_last).getDay();//determining wich day of week is last day in month
+				var first_day_weekd = new Date(last_day.getFullYear(), last_day.getMonth(), 1).getDay(); //
+				var rownum = 6  - 1;
+				var calendar = '<tr>';
+				var first_day = first_day_weekd;
+				
+				if(first_day_weekd ==0){
+					first_day = 7;
+					}
+					
+				for (var i = 1; i < first_day; i++) {
+					var day = new Date(Year, months, i - first_day + 1).getDate();
+					 calendar += '<td class="other">' + day + '</td>';	
+				}
+				
+				for (var i = 1; i <= day_last; i++) {
+                    					
+					if (i == newdata.getDate()) {
+                        calendar += '<td class="today" data-char="' + i + '"></td>';
+                    } 
+					else if (thisHol(new Date(Year, months, i))) {
+                        calendar += '<td class="holiday">' + i + '</td>';
+					}
+					else {
+						calendar += '<td>' + i + '</td>';
+						}
+					
+				  						
+					if (new Date(last_day.getFullYear(), last_day.getMonth(), i).getDay() == 0) {
+                        calendar += '</tr><tr>';
+                        rownum --;
+                    }
+				}
+				
+                var next_month_day = 1;
+				
+				for (var i = last_day_weekd; i < 7; i++) {
+                    var day = new Date(Year, months + 1, next_month_day).getDate();
+                    calendar += '<td class="other">' + day + '</td>';
+                    
+                    next_month_day++;
+                }
+				
+                calendar += "</tr>";
+				
+				 for (var i = 0; i < rownum; i++) {
+                    calendar += "<tr>";
+                
+                    for (var j = 0; j < 7; j++) {
+                        var day = new Date(Year, months + 1, next_month_day).getDate();
+                        calendar += '<td class="other">' + day + '</td>';
+                        
+                        next_month_day++;
+                    }
+					
+					calendar += "</tr>";
+                }
+				
+				var labelHeaders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                var header = "<tr>";
+                for (var i in labelHeaders) {
+                    header += "<th>" + labelHeaders[i] + "</th>";
+                }
+                
+                header += "</tr>"
+                document.querySelector('#' + id + ' thead').innerHTML = header;
+                document.querySelector('#' + id + ' tbody').innerHTML = calendar;
+            }
+			</script>
+			<div class = "center">
+				<div id="nowTime" value="">
+				</div>
+				<div id="nowDay" value=""> 
+				</div>
+				<div id = "Calendar_">
+					<table id="calendar" cellspacing="0">
+						<thead>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+	</body>
+</html>
